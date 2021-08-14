@@ -1,18 +1,18 @@
 local module = {}
 
---- Defaults used for `applyKeybinds`
+--- Defaults used for `applyKeymaps`
 -- You can set these to override them. Defaults are:
 --
--- @field mode Mode for the keybindings. Defaults to `'n'`. See @see vim.api.nvim_set_keymap
--- @field options Keybind options like `<buffer>` and `<silent>` as a table of booleans. Defaults to `{ noremap = true, silent = true }`. See @see vim.api.nvim_set_keymap
--- @field prefix Prefix being applied to **all** (left side) key sequences. Defaults to an empty string (no prefix)
+-- @field mode string Mode for the keymaps. Defaults to `'n'`. See @see vim.api.nvim_set_keymap
+-- @field prefix string Prefix being applied to **all** (left side) key sequences. Defaults to an empty string (no prefix)
+-- @field options table Keymap options like `<buffer>` and `<silent>` as a table of booleans. Defaults to `{ noremap = true, silent = true }`. See @see vim.api.nvim_set_keymap
 module.defaults = {
     mode = "n",
+    prefix = "",
     options = {
         noremap = true,
         silent = true,
     },
-    prefix = "",
 }
 
 local function copy(table)
@@ -57,8 +57,8 @@ local function mergeOptions(left, right)
     return ret
 end
 
---- Applies the given keybinds using the current `defaults`
--- Keybinds can be passed as a list of configs, with each config
+--- Applies the given keymaps using the current `defaults`
+-- Keymaps can be passed as a list of configs, with each config
 -- being one of three options:
 --
 -- 1. A pair of strings
@@ -71,7 +71,7 @@ end
 --
 -- ```lua
 -- ```
-module.applyKeybinds = function (config, presets)
+module.applyKeymaps = function (config, presets)
     local presets = presets or module.defaults
     local mergedPresets = mergeOptions(presets, config)
 
@@ -79,7 +79,7 @@ module.applyKeybinds = function (config, presets)
 
     if(type(first) == "table") then
         for _, it in ipairs(config) do
-            module.applyKeybinds(it, mergedPresets)
+            module.applyKeymaps(it, mergedPresets)
         end
 
         return
@@ -90,7 +90,7 @@ module.applyKeybinds = function (config, presets)
     mergedPresets.prefix = mergedPresets.prefix .. first
 
     if(type(second) == "table") then
-        module.applyKeybinds(second, mergedPresets)
+        module.applyKeymaps(second, mergedPresets)
 
         return
     end
