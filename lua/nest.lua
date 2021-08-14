@@ -66,11 +66,6 @@ end
 -- 3. A new list of configs
 --
 -- with each having optional properties to override the current `defaults`.
---
--- Example:
---
--- ```lua
--- ```
 module.applyKeymaps = function (config, presets)
     local presets = presets or module.defaults
     local mergedPresets = mergeOptions(presets, config)
