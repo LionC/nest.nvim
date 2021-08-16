@@ -15,6 +15,14 @@ module.defaults = {
     },
 }
 
+module.functions = {}
+
+local function registerFunction(func)
+    table.insert(module.functions, func)
+
+    return #module.functions
+end
+
 local function copy(table)
     local ret = {}
 
@@ -90,10 +98,14 @@ module.applyKeymaps = function (config, presets)
         return
     end
 
+    local rhs = type(second) == "function"
+        and '<Cmd>lua require("nest").functions[' .. registerFunction(second) .. ']()<CR>'
+        or second
+
     vim.api.nvim_set_keymap(
         mergedPresets.mode,
         mergedPresets.prefix,
-        second,
+        rhs,
         mergedPresets.options
     )
 end
