@@ -124,7 +124,7 @@ Defaults start out as
 ### `nest.applyKeymaps(keymapConfig)`
 
 Expects a `keymapConfig`, which is a table with at least two indexed properties
-in one of the following two shapes:
+in one of the following three shapes:
 
 #### Keymap
 
@@ -138,18 +138,27 @@ the VimL `:*map` commands.
 #### Config Subtree
 
 ```lua
-{ 'inputprefix', {
-    keymapConfig,
-    keymapConfig,
-    keymapConfig,
-    -- ...
-}}
+{ 'inputprefix', keymapConfig }
 ```
 
-Append the inputprefix to the current prefix and applies all given
+Append the inputprefix to the current prefix and applies the given
 `keymapConfig`s with the new prefix.
 
-Each `keymapConfig` can also have any of the following fields:
+#### Config List
+
+```lua
+{
+    keymapConfig,
+    keymapConfig,
+    keymapConfig
+    -- ...
+}
+```
+
+Applies all given `keymapConfig`s.
+
+Each `keymapConfig` can also have any of the following fields, which will cascade
+to all containing sub-`keymapConfig`s:
 
 #### `mode`
 
