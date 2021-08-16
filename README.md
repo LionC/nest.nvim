@@ -121,7 +121,7 @@ Defaults start out as
 
 ## Reference
 
-### `nest.applyKeymaps(keymapConfig)`
+### `nest.applyKeymaps`
 
 Expects a `keymapConfig`, which is a table with at least two indexed properties
 in one of the following three shapes:
