@@ -38,10 +38,15 @@ overwritten.  Overrides are inherited by nested keymaps.
 ```lua
 local nest = require('nest')
 
+function helloWorld() vim.cmd [[echo "Hello World!"]] end
+
 nest.applyKeymaps {
     -- Remove silent from ; : mapping, so that : shows up in command mode
     { ';', ':' , options = { silent = false } },
     { ':', ';' },
+
+    -- Lua functions can be right side values instead of key sequences
+    { '\', helloWorld },
 
     -- Prefix  every nested keymap with <leader>
     { '<leader>', {
