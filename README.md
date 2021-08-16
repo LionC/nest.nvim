@@ -46,7 +46,7 @@ nest.applyKeymaps {
     { ':', ';' },
 
     -- Lua functions can be right side values instead of key sequences
-    { '\', helloWorld },
+    { 'Q', helloWorld },
 
     -- Prefix  every nested keymap with <leader>
     { '<leader>', {
