@@ -1,11 +1,5 @@
 local module = {}
 
---- Defaults used for `applyKeymaps`
--- You can set these to override them. Defaults are:
---
--- @field mode string Mode for the keymaps. Defaults to `'n'`. See @see vim.api.nvim_set_keymap
--- @field prefix string Prefix being applied to **all** (left side) key sequences. Defaults to an empty string (no prefix)
--- @field options table Keymap options like `<buffer>` and `<silent>` as a table of booleans. Defaults to `{ noremap = true, silent = true }`. See @see vim.api.nvim_set_keymap
 module.defaults = {
     mode = "n",
     prefix = "",
@@ -65,15 +59,6 @@ local function mergeOptions(left, right)
     return ret
 end
 
---- Applies the given keymaps using the current `defaults`
--- Keymaps can be passed as a list of configs, with each config
--- being one of three options:
---
--- 1. A pair of strings
--- 2. A pair of a string and another config
--- 3. A new list of configs
---
--- with each having optional properties to override the current `defaults`.
 module.applyKeymaps = function (config, presets)
     local presets = presets or module.defaults
     local mergedPresets = mergeOptions(presets, config)
