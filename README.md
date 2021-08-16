@@ -206,7 +206,4 @@ Sets a `string` prefix to be applied to all keymap inputs.
 
 ## Planned Features
 
-- 1.1
-    - add optional `description`s to keymaps
-    - allow looking up custom keymaps via some command
-    - optional telescope integration
+See issues and milestones
