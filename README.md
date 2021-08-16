@@ -1,9 +1,10 @@
 # nest.nvim
 
-Neovim utility plugin to define keymaps in concise, readable, cascading trees
+Neovim utility plugin to define keymaps in concise, readable, cascading lists
+and trees
 
 - Modular, maintainable pure Lua way to define keymaps
-- Written in a single file of ~100 lines of Lua
+- Written in a single file of ~100 lines
 - Only supports `neovim`
 
 ## Installation
