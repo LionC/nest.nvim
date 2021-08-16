@@ -5,6 +5,7 @@ and trees
 
 - Modular, maintainable pure Lua way to define keymaps
 - Written in a single file of ~100 lines
+- Supports mapping keys to Lua functions
 - Only supports `neovim`
 
 ## Installation
@@ -130,7 +131,7 @@ Defaults start out as
 ### `nest.applyKeymaps`
 
 Expects a `keymapConfig`, which is a table with at least two indexed properties
-in one of the following three shapes:
+in one of the following four shapes:
 
 #### Keymap
 
@@ -140,6 +141,14 @@ in one of the following three shapes:
 
 Sets a keymap, mapping the input sequence to the output sequence similiar to
 the VimL `:*map` commands.
+
+#### Lua Function Keymap
+
+```lua
+{ 'inputsequence', someLuaFunction }
+```
+
+Sets a keymap, mapping the input sequence to call the given lua function.
 
 #### Config Subtree
 
