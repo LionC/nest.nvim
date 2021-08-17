@@ -1,5 +1,7 @@
 local module = {}
 
+--- Defaults being applied to `applyKeymaps`
+-- Can be modified to change defaults applied.
 module.defaults = {
     mode = "n",
     prefix = "",
@@ -9,6 +11,7 @@ module.defaults = {
     },
 }
 
+--- Registry for keymapped lua functions, do not modify!
 module.functions = {}
 
 local function registerFunction(func)
@@ -59,6 +62,7 @@ local function mergeOptions(left, right)
     return ret
 end
 
+--- Applies the given `keymapConfig`, creating nvim keymaps
 module.applyKeymaps = function (config, presets)
     local presets = presets or module.defaults
     local mergedPresets = mergeOptions(presets, config)
