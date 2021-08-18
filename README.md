@@ -92,6 +92,9 @@ nest.applyKeymaps {
             { 'o>', '<Esc>o', buffer = 2 },
         }},
     }},
+
+    -- Keymaps can be defined for multiple modes at once
+    { 'H', '^', mode = 'nv' },
 }
 ```
 
@@ -180,10 +183,11 @@ to all containing sub-`keymapConfig`s:
 
 #### `mode`
 
-Sets the Vim mode for keymaps contained in the `keymapConfig`.
+Sets the Vim mode(s) for keymaps contained in the `keymapConfig`.
 
-Accepts all values `nvim_set_keymap`s `mode` parameter accepts. See `:help
-nvim_set_keymap`
+Accepts a string with each char representing a mode. The modes follow the Vim
+prefixes (`n` for normal, `i` for insert...). See `:help map-table` for a
+reference.
 
 #### `buffer`
 
