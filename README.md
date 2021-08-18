@@ -6,7 +6,7 @@ and trees
 - Modular, maintainable pure Lua way to define keymaps
 - Written in a single file of ~100 lines
 - Supports mapping keys to Lua functions
-- Only supports `neovim`
+- Allows grouping keymaps the way you think about them concisely
 
 ## Installation
 
