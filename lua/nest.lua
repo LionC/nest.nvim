@@ -1,11 +1,7 @@
 local module = {}
 
---- Defaults used for `applyKeymaps`
--- You can set these to override them. Defaults are:
---
--- @field mode string Mode for the keymaps. Defaults to `'n'`. See @see vim.api.nvim_set_keymap
--- @field prefix string Prefix being applied to **all** (left side) key sequences. Defaults to an empty string (no prefix)
--- @field options table Keymap options like `<buffer>` and `<silent>` as a table of booleans. Defaults to `{ noremap = true, silent = true }`. See @see vim.api.nvim_set_keymap
+--- Defaults being applied to `applyKeymaps`
+-- Can be modified to change defaults applied.
 module.defaults = {
     mode = "n",
     prefix = "",
@@ -15,6 +11,15 @@ module.defaults = {
         silent = true,
     },
 }
+
+--- Registry for keymapped lua functions, do not modify!
+module.functions = {}
+
+local function registerFunction(func)
+    table.insert(module.functions, func)
+
+    return #module.functions
+end
 
 local function copy(table)
     local ret = {}
@@ -58,15 +63,7 @@ local function mergeOptions(left, right)
     return ret
 end
 
---- Applies the given keymaps using the current `defaults`
--- Keymaps can be passed as a list of configs, with each config
--- being one of three options:
---
--- 1. A pair of strings
--- 2. A pair of a string and another config
--- 3. A new list of configs
---
--- with each having optional properties to override the current `defaults`.
+--- Applies the given `keymapConfig`, creating nvim keymaps
 module.applyKeymaps = function (config, presets)
     local presets = presets or module.defaults
     local mergedPresets = mergeOptions(presets, config)
@@ -91,6 +88,10 @@ module.applyKeymaps = function (config, presets)
         return
     end
 
+    local rhs = type(second) == "function"
+        and '<Cmd>lua require("nest").functions[' .. registerFunction(second) .. ']()<CR>'
+        or second
+
     if mergedPresets.buffer then
         local buffer = mergedPresets.buffer == true
             and 0
@@ -100,18 +101,17 @@ module.applyKeymaps = function (config, presets)
             buffer,
             mergedPresets.mode,
             mergedPresets.prefix,
-            second,
+            rhs,
             mergedPresets.options
         )
     else
         vim.api.nvim_set_keymap(
             mergedPresets.mode,
             mergedPresets.prefix,
-            second,
+            rhs,
             mergedPresets.options
         )
     end
-
 end
 
 return module
