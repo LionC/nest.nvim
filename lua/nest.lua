@@ -5,6 +5,7 @@ local module = {}
 module.defaults = {
     mode = "n",
     prefix = "",
+    buffer = false,
     options = {
         noremap = true,
         silent = true,
@@ -43,19 +44,23 @@ end
 local function mergeOptions(left, right)
     local ret = copy(left)
 
-    if (right == nil) then
+    if right == nil then
         return ret
     end
 
-    if (right.mode ~= nil) then
+    if right.mode ~= nil then
         ret.mode = right.mode
     end
 
-    if (right.prefix ~= nil) then
+    if right.buffer ~= nil then
+        ret.buffer = right.buffer
+    end
+
+    if right.prefix ~= nil then
         ret.prefix = ret.prefix .. right.prefix
     end
 
-    if (right.options ~= nil) then
+    if right.options ~= nil then
         ret.options = mergeTables(ret.options, right.options)
     end
 
@@ -69,7 +74,7 @@ module.applyKeymaps = function (config, presets)
 
     local first = config[1]
 
-    if(type(first) == "table") then
+    if type(first) == "table" then
         for _, it in ipairs(config) do
             module.applyKeymaps(it, mergedPresets)
         end
@@ -81,7 +86,7 @@ module.applyKeymaps = function (config, presets)
 
     mergedPresets.prefix = mergedPresets.prefix .. first
 
-    if(type(second) == "table") then
+    if type(second) == "table" then
         module.applyKeymaps(second, mergedPresets)
 
         return
@@ -91,12 +96,26 @@ module.applyKeymaps = function (config, presets)
         and '<Cmd>lua require("nest").functions[' .. registerFunction(second) .. ']()<CR>'
         or second
 
-    vim.api.nvim_set_keymap(
-        mergedPresets.mode,
-        mergedPresets.prefix,
-        rhs,
-        mergedPresets.options
-    )
+    if mergedPresets.buffer then
+        local buffer = (mergedPresets.buffer == true)
+            and 0
+            or mergedPresets.buffer
+
+        vim.api.nvim_buf_set_keymap(
+            buffer,
+            mergedPresets.mode,
+            mergedPresets.prefix,
+            rhs,
+            mergedPresets.options
+        )
+    else
+        vim.api.nvim_set_keymap(
+            mergedPresets.mode,
+            mergedPresets.prefix,
+            rhs,
+            mergedPresets.options
+        )
+    end
 end
 
 return module

@@ -33,7 +33,7 @@ call dein#add('LionC/nest.nvim')
 The `nest` Lua module exposes an `applyKeymaps` function that can be called
 any number of times with a list of (nested) keymaps to be set.
 
-Keymaps will default to `normal` mode, `noremap` and `silent` unless
+Keymaps will default to global, `normal` mode, `noremap` and `silent` unless
 overwritten.  Overrides are inherited by nested keymaps.
 
 ```lua
@@ -80,14 +80,16 @@ nest.applyKeymaps {
         -- Set <expr> option for all nested keymaps
         { options = { expr = true }, {
             { "<CR>",       "compe#confirm('<CR>')" },
-            -- This is equivalent to viml `inoremap <C-Space> <expr>compe#complete()`
+            -- This is equivalent to viml `:inoremap <C-Space> <expr>compe#complete()`
             { "<C-Space>",  "compe#complete()" },
         }},
 
-        { '<C-', {
+        -- Buffer `true` sets keymaps only for the current buffer
+        { '<C-', buffer = true, {
             { 'h>', '<left>' },
             { 'l>', '<right>' },
-            { 'o>', '<Esc>o' },
+            -- You can also set bindings for a specific buffer
+            { 'o>', '<Esc>o', buffer = 2 },
         }},
     }},
 }
@@ -119,6 +121,7 @@ Defaults start out as
 {
     mode = 'n',
     prefix = '',
+    buffer = false,
     options = {
         noremap = true,
         silent = true,
@@ -181,6 +184,14 @@ Sets the Vim mode for keymaps contained in the `keymapConfig`.
 
 Accepts all values `nvim_set_keymap`s `mode` parameter accepts. See `:help
 nvim_set_keymap`
+
+#### `buffer`
+
+Determines whether binding are global or local to a buffer:
+
+- `false` means global
+- `true` means current buffer
+- A number means that specific buffer (see `:ls` for buffer numbering)
 
 #### `options`
 
