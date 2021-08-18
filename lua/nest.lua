@@ -52,6 +52,10 @@ local function mergeOptions(left, right)
         ret.mode = right.mode
     end
 
+    if right.buffer ~= nil then
+        ret.buffer = right.buffer
+    end
+
     if right.prefix ~= nil then
         ret.prefix = ret.prefix .. right.prefix
     end
@@ -93,11 +97,11 @@ module.applyKeymaps = function (config, presets)
         or second
 
     if mergedPresets.buffer then
-        local buffer = mergedPresets.buffer == true
+        local buffer = (mergedPresets.buffer == true)
             and 0
             or mergedPresets.buffer
 
-        vim.api.nvim_but_set_keymap(
+        vim.api.nvim_buf_set_keymap(
             buffer,
             mergedPresets.mode,
             mergedPresets.prefix,
