@@ -5,6 +5,7 @@ and trees
 
 - Modular, maintainable pure Lua way to define keymaps
 - Written in a single file of ~100 lines
+- Supports mapping keys to Lua functions
 - Only supports `neovim`
 
 ## Installation
@@ -38,10 +39,15 @@ overwritten.  Overrides are inherited by nested keymaps.
 ```lua
 local nest = require('nest')
 
+function helloWorld() vim.cmd [[echo "Hello World!"]] end
+
 nest.applyKeymaps {
     -- Remove silent from ; : mapping, so that : shows up in command mode
     { ';', ':' , options = { silent = false } },
     { ':', ';' },
+
+    -- Lua functions can be right side values instead of key sequences
+    { 'Q', helloWorld },
 
     -- Prefix  every nested keymap with <leader>
     { '<leader>', {
@@ -125,7 +131,7 @@ Defaults start out as
 ### `nest.applyKeymaps`
 
 Expects a `keymapConfig`, which is a table with at least two indexed properties
-in one of the following three shapes:
+in one of the following four shapes:
 
 #### Keymap
 
@@ -135,6 +141,14 @@ in one of the following three shapes:
 
 Sets a keymap, mapping the input sequence to the output sequence similiar to
 the VimL `:*map` commands.
+
+#### Lua Function Keymap
+
+```lua
+{ 'inputsequence', someLuaFunction }
+```
+
+Sets a keymap, mapping the input sequence to call the given lua function.
 
 #### Config Subtree
 
@@ -192,7 +206,4 @@ Sets a `string` prefix to be applied to all keymap inputs.
 
 ## Planned Features
 
-- 1.1
-    - add optional `description`s to keymaps
-    - allow looking up custom keymaps via some command
-    - optional telescope integration
+See issues and milestones
