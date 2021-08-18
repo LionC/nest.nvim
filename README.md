@@ -6,7 +6,7 @@ and trees
 - Modular, maintainable pure Lua way to define keymaps
 - Written in a single file of ~100 lines
 - Supports mapping keys to Lua functions
-- Only supports `neovim`
+- Allows grouping keymaps the way you think about them concisely
 
 ## Installation
 
@@ -30,11 +30,11 @@ call dein#add('LionC/nest.nvim')
 
 ## Quickstart Guide
 
-The `nest` Lua module exposes an `applyKeymaps` function that can be called
-any number of times with a list of (nested) keymaps to be set.
+The `nest` Lua module exposes an `applyKeymaps` function that can be called any
+number of times with a list of (nested) keymaps to be set.
 
-Keymaps will default to global, `normal` mode, `noremap` and `silent` unless
-overwritten.  Overrides are inherited by nested keymaps.
+Keymaps will default to global, normal (`n`) mode, `noremap` and `silent`
+unless overwritten.  Overrides are inherited by nested keymaps.
 
 ```lua
 local nest = require('nest')
@@ -92,6 +92,9 @@ nest.applyKeymaps {
             { 'o>', '<Esc>o', buffer = 2 },
         }},
     }},
+
+    -- Keymaps can be defined for multiple modes at once
+    { 'H', '^', mode = 'nv' },
 }
 ```
 
@@ -180,10 +183,11 @@ to all containing sub-`keymapConfig`s:
 
 #### `mode`
 
-Sets the Vim mode for keymaps contained in the `keymapConfig`.
+Sets the Vim mode(s) for keymaps contained in the `keymapConfig`.
 
-Accepts all values `nvim_set_keymap`s `mode` parameter accepts. See `:help
-nvim_set_keymap`
+Accepts a string with each char representing a mode. The modes follow the Vim
+prefixes (`n` for normal, `i` for insert...). See `:help map-table` for a
+reference.
 
 #### `buffer`
 

@@ -69,8 +69,10 @@ end
 
 --- Applies the given `keymapConfig`, creating nvim keymaps
 module.applyKeymaps = function (config, presets)
-    local presets = presets or module.defaults
-    local mergedPresets = mergeOptions(presets, config)
+    local mergedPresets = mergeOptions(
+        presets or module.defaults,
+        config
+    )
 
     local first = config[1]
 
@@ -96,26 +98,29 @@ module.applyKeymaps = function (config, presets)
         and '<Cmd>lua require("nest").functions[' .. registerFunction(second) .. ']()<CR>'
         or second
 
-    if mergedPresets.buffer then
-        local buffer = (mergedPresets.buffer == true)
-            and 0
-            or mergedPresets.buffer
+    for mode in string.gmatch(mergedPresets.mode, '.') do
+        if mergedPresets.buffer then
+            local buffer = (mergedPresets.buffer == true)
+                and 0
+                or mergedPresets.buffer
 
-        vim.api.nvim_buf_set_keymap(
-            buffer,
-            mergedPresets.mode,
-            mergedPresets.prefix,
-            rhs,
-            mergedPresets.options
-        )
-    else
-        vim.api.nvim_set_keymap(
-            mergedPresets.mode,
-            mergedPresets.prefix,
-            rhs,
-            mergedPresets.options
-        )
+            vim.api.nvim_buf_set_keymap(
+                buffer,
+                mode,
+                mergedPresets.prefix,
+                rhs,
+                mergedPresets.options
+            )
+        else
+            vim.api.nvim_set_keymap(
+                mode,
+                mergedPresets.prefix,
+                rhs,
+                mergedPresets.options
+            )
+        end
     end
+
 end
 
 return module
