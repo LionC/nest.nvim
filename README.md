@@ -33,7 +33,7 @@ call dein#add('LionC/nest.nvim')
 The `nest` Lua module exposes an `applyKeymaps` function that can be called
 any number of times with a list of (nested) keymaps to be set.
 
-Keymaps will default to `normal` mode, `noremap` and `silent` unless
+Keymaps will default to global, `normal` mode, `noremap` and `silent` unless
 overwritten.  Overrides are inherited by nested keymaps.
 
 ```lua
