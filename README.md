@@ -39,7 +39,8 @@ overwritten.  Overrides are inherited by nested keymaps.
 local nest = require('nest')
 
 nest.applyKeymaps {
-    -- Remove silent from ; : mapping, so that : shows up in command mode
+    -- In this case, you would have to override defaults settings and set silent to false 
+    -- in order that ':' show up correctly.
     { ';', ':' , options = { silent = false } },
     { ':', ';' },
 
