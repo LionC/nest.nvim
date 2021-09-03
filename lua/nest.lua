@@ -14,6 +14,9 @@ module.defaults = {
 
 local rhsFns = {}
 
+-- Create empty table to hold mapping info for later reference
+NestMapsTable = {}
+
 module._callRhsFn = function(index)
     rhsFns[index]()
 end
@@ -110,6 +113,28 @@ module.applyKeymaps = function (config, presets)
     local rhs = type(second) == 'function'
         and functionToRhs(second, mergedPresets.options.expr)
         or second
+
+    local mapConfig = {}
+    if mergedPresets.mode ~= nil then
+        mapConfig.mode = mergedPresets.mode
+    end
+
+    if mergedPresets.buffer ~= nil then
+        mapConfig.buffer = mergedPresets.buffer
+    end
+
+    if mergedPresets.options ~= nil then
+        mapConfig.options = copy(mergedPresets.options)
+    end
+
+    mapConfig.lhs = mergedPresets.prefix
+    mapConfig.rhs = rhs
+
+    if type(config[3]) == "string" then
+        mapConfig.description = config[3]
+    end
+
+    table.insert(NestMapsTable,mapConfig)
 
     for mode in string.gmatch(mergedPresets.mode, '.') do
         local sanitizedMode = mode == '_'
