@@ -12,13 +12,20 @@ module.defaults = {
     },
 }
 
---- Registry for keymapped lua functions, do not modify!
-module.functions = {}
+local rhsFns = {}
 
-local function registerFunction(func)
-    table.insert(module.functions, func)
+module._callRhsFn = function(index)
+    return rhsFns[index]()
+end
 
-    return #module.functions
+local function functionToRhs(func, expr)
+    table.insert(rhsFns, func)
+
+    local insertedIndex = #rhsFns
+
+    return expr
+        and 'v:lua.package.loaded.nest._callRhsFn(' .. insertedIndex .. ')'
+        or '<Cmd>lua package.loaded.nest._callRhsFn(' .. insertedIndex .. ')<CR>'
 end
 
 local function copy(table)
@@ -95,7 +102,7 @@ module.applyKeymaps = function (config, presets)
     end
 
     local rhs = type(second) == "function"
-        and '<Cmd>lua require("nest").functions[' .. registerFunction(second) .. ']()<CR>'
+        and functionToRhs(second, mergedPresets.options.expr)
         or second
 
     for mode in string.gmatch(mergedPresets.mode, '.') do
