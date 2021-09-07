@@ -12,18 +12,20 @@ module.defaults = {
     },
 }
 
---- Registry for keymapped lua functions, do not modify!
-module.rhsFns = {}
+local rhsFns = {}
+
+module._callRhsFn = function(index)
+    return rhsFns[index]()
+end
 
 local function functionToRhs(func, expr)
-    table.insert(
-        module.rhsFns,
-        expr
-            and function() print(func()) end
-            or func
-    )
+    table.insert(rhsFns, func)
 
-    return '<Cmd>lua require("nest").rhsFns[' .. #module.rhsFns .. ']()<CR>' 
+    local insertedIndex = #rhsFns
+
+    return expr
+        and 'v:lua.package.loaded.nest._callRhsFn(' .. insertedIndex .. ')'
+        or '<cmd>lua package.loaded.nest._callRhsFn(' .. insertedIndex .. ')<cr>'
 end
 
 local function copy(table)
