@@ -77,9 +77,9 @@ nest.applyKeymaps {
 
         -- Set <expr> option for all nested keymaps
         { options = { expr = true }, {
-            { "<CR>",       "compe#confirm('<CR>')" },
+            { '<cr>',       'compe#confirm("<CR>")' },
             -- This is equivalent to viml `:inoremap <C-Space> <expr>compe#complete()`
-            { "<C-Space>",  "compe#complete()" },
+            { '<C-Space>',  'compe#complete()' },
         }},
 
         -- Buffer `true` sets keymaps only for the current buffer

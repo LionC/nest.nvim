@@ -3,8 +3,8 @@ local module = {}
 --- Defaults being applied to `applyKeymaps`
 -- Can be modified to change defaults applied.
 module.defaults = {
-    mode = "n",
-    prefix = "",
+    mode = 'n',
+    prefix = '',
     buffer = false,
     options = {
         noremap = true,
@@ -85,7 +85,7 @@ module.applyKeymaps = function (config, presets)
 
     local first = config[1]
 
-    if type(first) == "table" then
+    if type(first) == 'table' then
         for _, it in ipairs(config) do
             module.applyKeymaps(it, mergedPresets)
         end
@@ -97,13 +97,13 @@ module.applyKeymaps = function (config, presets)
 
     mergedPresets.prefix = mergedPresets.prefix .. first
 
-    if type(second) == "table" then
+    if type(second) == 'table' then
         module.applyKeymaps(second, mergedPresets)
 
         return
     end
 
-    local rhs = type(second) == "function"
+    local rhs = type(second) == 'function'
         and functionToRhs(second, mergedPresets.options.expr)
         or second
 
