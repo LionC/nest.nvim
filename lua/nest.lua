@@ -15,7 +15,9 @@ module.defaults = {
 local rhsFns = {}
 
 module._callRhsFn = function(index)
-    return rhsFns[index]()
+    local keys = rhsFns[index]()
+
+    return vim.api.nvim_replace_termcodes(keys, true, true, true)
 end
 
 local function functionToRhs(func, expr)
