@@ -25,7 +25,7 @@ local function functionToRhs(func, expr)
 
     return expr
         and 'v:lua.package.loaded.nest._callRhsFn(' .. insertedIndex .. ')'
-        or '<Cmd>lua package.loaded.nest._callRhsFn(' .. insertedIndex .. ')<CR>'
+        or '<cmd>lua package.loaded.nest._callRhsFn(' .. insertedIndex .. ')<cr>'
 end
 
 local function copy(table)
