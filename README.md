@@ -46,30 +46,28 @@ nest.applyKeymaps {
     { ';', ':' , options = { silent = false } },
     { ':', ';' },
 
-    -- Lua functions can be right side values instead of key sequences
-    { 'Q', helloWorld },
-
     -- Prefix  every nested keymap with <leader>
     { '<leader>', {
         -- Prefix every nested keymap with f (meaning actually <leader>f here)
         { 'f', {
-            { 'f', '<Cmd>Telescope find_files<CR>' },
+            { 'f', '<cmd>Telescope find_files<cr>' },
             -- This will actually map <leader>fl
-            { 'l', '<Cmd>Telescope live_grep<CR>' },
+            { 'l', '<cmd>Telescope live_grep<cr>' },
             -- Prefix every nested keymap with g (meaning actually <leader>fg here)
             { 'g', {
-                { 'b', '<Cmd>Telescope git_branches<CR>' },
+                { 'b', '<cmd>Telescope git_branches<cr>' },
                 -- This will actually map <leader>fgc
-                { 'c', '<Cmd>Telescope git_commits<CR>' },
-                { 's', '<Cmd>Telescope git_status<CR>' },
+                { 'c', '<cmd>Telescope git_commits<cr>' },
+                { 's', '<cmd>Telescope git_status<cr>' },
             }},
         }},
 
+        -- Lua functions can be right side values instead of key sequences
         { 'l', {
-            { 'c', '<Cmd>lua vim.lsp.buf.code_actions()<CR>' },
-            { 'r', '<Cmd>lua vim.lsp.buf.rename()<CR>' },
-            { 's', '<Cmd>lua vim.lsp.buf.signature_help()<CR>' },
-            { 'h', '<Cmd>lua vim.lsp.buf.hover()<CR>' },
+            { 'c', lua vim.lsp.buf.code_actions },
+            { 'r', lua vim.lsp.buf.rename },
+            { 's', lua vim.lsp.buf.signature_help },
+            { 'h', lua vim.lsp.buf.hover },
         }},
     }},
 
@@ -154,7 +152,8 @@ the VimL `:*map` commands.
 { 'inputsequence', someLuaFunction }
 ```
 
-Sets a keymap, mapping the input sequence to call the given lua function.
+Sets a keymap, mapping the input sequence to call the given lua function. Also
+works when `expr` is set - just `return` a string from your function.
 
 #### Config Subtree
 
@@ -186,8 +185,8 @@ to all containing sub-`keymapConfig`s:
 Sets the Vim mode(s) for keymaps contained in the `keymapConfig`.
 
 Accepts a string with each char representing a mode. The modes follow the Vim
-prefixes (`n` for normal, `i` for insert...). See `:help map-table` for a
-reference.
+prefixes (`n` for normal, `i` for insert...) **except the special character `_`**, which 
+stands for the empty mode (`:map `). See `:help map-table` for a reference.
 
 #### `buffer`
 

@@ -108,6 +108,10 @@ module.applyKeymaps = function (config, presets)
         or second
 
     for mode in string.gmatch(mergedPresets.mode, '.') do
+        local sanitizedMode = mode == '_'
+            and ''
+            or mode
+
         if mergedPresets.buffer then
             local buffer = (mergedPresets.buffer == true)
                 and 0
@@ -115,21 +119,20 @@ module.applyKeymaps = function (config, presets)
 
             vim.api.nvim_buf_set_keymap(
                 buffer,
-                mode,
+                sanitizedMode,
                 mergedPresets.prefix,
                 rhs,
                 mergedPresets.options
             )
         else
             vim.api.nvim_set_keymap(
-                mode,
+                sanitizedMode,
                 mergedPresets.prefix,
                 rhs,
                 mergedPresets.options
             )
         end
     end
-
 end
 
 return module
