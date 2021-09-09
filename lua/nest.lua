@@ -15,6 +15,10 @@ module.defaults = {
 local rhsFns = {}
 
 module._callRhsFn = function(index)
+    rhsFns[index]()
+end
+
+module._getRhsExpr = function(index)
     local keys = rhsFns[index]()
 
     return vim.api.nvim_replace_termcodes(keys, true, true, true)
@@ -26,7 +30,7 @@ local function functionToRhs(func, expr)
     local insertedIndex = #rhsFns
 
     return expr
-        and 'v:lua.package.loaded.nest._callRhsFn(' .. insertedIndex .. ')'
+        and 'v:lua.package.loaded.nest._getRhsExpr(' .. insertedIndex .. ')'
         or '<cmd>lua package.loaded.nest._callRhsFn(' .. insertedIndex .. ')<cr>'
 end
 
