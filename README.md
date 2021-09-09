@@ -151,7 +151,8 @@ the VimL `:*map` commands.
 ```
 
 Sets a keymap, mapping the input sequence to call the given lua function. Also
-works when `expr` is set - just `return` a string from your function.
+works when `expr` is set - just `return` a string from your function (e.g.
+`'<cmd>echo "Hello"<cr>'`).
 
 #### Config Subtree
 
