@@ -5,7 +5,8 @@ and trees
 
 - Modular, maintainable pure Lua way to define keymaps
 - Written in a single file of ~100 lines
-- Only supports `neovim`
+- Supports mapping keys to Lua functions with `expr` support
+- Allows grouping keymaps the way you think about them concisely
 
 ## Installation
 
@@ -29,11 +30,11 @@ call dein#add('LionC/nest.nvim')
 
 ## Quickstart Guide
 
-The `nest` Lua module exposes an `applyKeymaps` function that can be called
-any number of times with a list of (nested) keymaps to be set.
+The `nest` Lua module exposes an `applyKeymaps` function that can be called any
+number of times with a list of (nested) keymaps to be set.
 
-Keymaps will default to `normal` mode, `noremap` and `silent` unless
-overwritten.  Overrides are inherited by nested keymaps.
+Keymaps will default to global, normal (`n`) mode, `noremap` and `silent`
+unless overwritten.  Overrides are inherited by nested keymaps.
 
 ```lua
 local nest = require('nest')
@@ -47,23 +48,24 @@ nest.applyKeymaps {
     { '<leader>', {
         -- Prefix every nested keymap with f (meaning actually <leader>f here)
         { 'f', {
-            { 'f', '<Cmd>Telescope find_files<CR>' },
+            { 'f', '<cmd>Telescope find_files<cr>' },
             -- This will actually map <leader>fl
-            { 'l', '<Cmd>Telescope live_grep<CR>' },
+            { 'l', '<cmd>Telescope live_grep<cr>' },
             -- Prefix every nested keymap with g (meaning actually <leader>fg here)
             { 'g', {
-                { 'b', '<Cmd>Telescope git_branches<CR>' },
+                { 'b', '<cmd>Telescope git_branches<cr>' },
                 -- This will actually map <leader>fgc
-                { 'c', '<Cmd>Telescope git_commits<CR>' },
-                { 's', '<Cmd>Telescope git_status<CR>' },
+                { 'c', '<cmd>Telescope git_commits<cr>' },
+                { 's', '<cmd>Telescope git_status<cr>' },
             }},
         }},
 
+        -- Lua functions can be right side values instead of key sequences
         { 'l', {
-            { 'c', '<Cmd>lua vim.lsp.buf.code_actions()<CR>' },
-            { 'r', '<Cmd>lua vim.lsp.buf.rename()<CR>' },
-            { 's', '<Cmd>lua vim.lsp.buf.signature_help()<CR>' },
-            { 'h', '<Cmd>lua vim.lsp.buf.hover()<CR>' },
+            { 'c', lua vim.lsp.buf.code_actions },
+            { 'r', lua vim.lsp.buf.rename },
+            { 's', lua vim.lsp.buf.signature_help },
+            { 'h', lua vim.lsp.buf.hover },
         }},
     }},
 
@@ -73,17 +75,22 @@ nest.applyKeymaps {
 
         -- Set <expr> option for all nested keymaps
         { options = { expr = true }, {
-            { "<CR>",       "compe#confirm('<CR>')" },
-            -- This is equivalent to viml `inoremap <C-Space> <expr>compe#complete()`
-            { "<C-Space>",  "compe#complete()" },
+            { '<cr>',       'compe#confirm("<CR>")' },
+            -- This is equivalent to viml `:inoremap <C-Space> <expr>compe#complete()`
+            { '<C-Space>',  'compe#complete()' },
         }},
 
-        { '<C-', {
+        -- Buffer `true` sets keymaps only for the current buffer
+        { '<C-', buffer = true, {
             { 'h>', '<left>' },
             { 'l>', '<right>' },
-            { 'o>', '<Esc>o' },
+            -- You can also set bindings for a specific buffer
+            { 'o>', '<Esc>o', buffer = 2 },
         }},
     }},
+
+    -- Keymaps can be defined for multiple modes at once
+    { 'H', '^', mode = 'nv' },
 }
 ```
 
@@ -113,6 +120,7 @@ Defaults start out as
 {
     mode = 'n',
     prefix = '',
+    buffer = false,
     options = {
         noremap = true,
         silent = true,
@@ -125,7 +133,7 @@ Defaults start out as
 ### `nest.applyKeymaps`
 
 Expects a `keymapConfig`, which is a table with at least two indexed properties
-in one of the following three shapes:
+in one of the following four shapes:
 
 #### Keymap
 
@@ -135,6 +143,16 @@ in one of the following three shapes:
 
 Sets a keymap, mapping the input sequence to the output sequence similiar to
 the VimL `:*map` commands.
+
+#### Lua Function Keymap
+
+```lua
+{ 'inputsequence', someLuaFunction }
+```
+
+Sets a keymap, mapping the input sequence to call the given lua function. Also
+works when `expr` is set - just `return` a string from your function (e.g.
+`'<cmd>echo "Hello"<cr>'`).
 
 #### Config Subtree
 
@@ -163,10 +181,19 @@ to all containing sub-`keymapConfig`s:
 
 #### `mode`
 
-Sets the Vim mode for keymaps contained in the `keymapConfig`.
+Sets the Vim mode(s) for keymaps contained in the `keymapConfig`.
 
-Accepts all values `nvim_set_keymap`s `mode` parameter accepts. See `:help
-nvim_set_keymap`
+Accepts a string with each char representing a mode. The modes follow the Vim
+prefixes (`n` for normal, `i` for insert...) **except the special character `_`**, which 
+stands for the empty mode (`:map `). See `:help map-table` for a reference.
+
+#### `buffer`
+
+Determines whether binding are global or local to a buffer:
+
+- `false` means global
+- `true` means current buffer
+- A number means that specific buffer (see `:ls` for buffer numbering)
 
 #### `options`
 
@@ -192,7 +219,4 @@ Sets a `string` prefix to be applied to all keymap inputs.
 
 ## Planned Features
 
-- 1.1
-    - add optional `description`s to keymaps
-    - allow looking up custom keymaps via some command
-    - optional telescope integration
+See issues and milestones
