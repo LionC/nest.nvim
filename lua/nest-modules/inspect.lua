@@ -10,6 +10,7 @@ module.saveMapping = function(config, rhs, description)
     table.insert(
         mappings,
         vim.tbl_extend(
+            "force",
             config,
             {
                 rhs = type(rhs) == "function"
