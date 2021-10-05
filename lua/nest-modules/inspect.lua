@@ -6,7 +6,7 @@ module.getMappings = function()
     return mappings
 end
 
-module.saveMapping = function(config, rhs, description)
+module.saveMapping = function(config, rhs, name)
     table.insert(
         mappings,
         vim.tbl_extend(
@@ -16,7 +16,7 @@ module.saveMapping = function(config, rhs, description)
                 rhs = type(rhs) == "function"
                     and "<Lua function>"
                     or rhs,
-                description = description,
+                name = name,
             }
         )
     )
