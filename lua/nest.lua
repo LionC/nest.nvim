@@ -12,6 +12,7 @@ module.setup = function(config)
         end
     end
 end
+
 --- Defaults being applied to `applyKeymaps`
 -- Can be modified to change defaults applied.
 module.defaults = {

@@ -23,7 +23,7 @@ module.saveMapping = function(config, rhs, name)
     )
 end
 
-local defaultConfig = { test = 'bla' }
+local defaultConfig = {}
 
 local function setup(config)
     local mergedConfig = type(config) == 'table'
@@ -34,3 +34,4 @@ local function setup(config)
 end
 
 return setup
+
