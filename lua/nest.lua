@@ -1,7 +1,17 @@
 local module = {}
 
-local inspect = require 'nest-modules.inspect'
+-- Optional modules
+local inspect
 
+module.setup = function(config)
+    if config.inspect then
+        inspect = require 'nest-modules.inspect' (config.inspect)
+
+        for k, v in pairs(inspect.api) do
+            module[k] = v
+        end
+    end
+end
 --- Defaults being applied to `applyKeymaps`
 -- Can be modified to change defaults applied.
 module.defaults = {
@@ -103,7 +113,9 @@ module.applyKeymaps = function (config, presets)
         and functionToRhs(second, mergedPresets.options.expr)
         or second
 
-    inspect.saveMapping(mergedPresets, second, config.name)
+    if inspect ~= nil then
+        inspect.saveMapping(mergedPresets, second, config.name)
+    end
 
     for mode in string.gmatch(mergedPresets.mode, '.') do
         local sanitizedMode = mode == '_'
@@ -134,3 +146,4 @@ module.applyKeymaps = function (config, presets)
 end
 
 return module
+
