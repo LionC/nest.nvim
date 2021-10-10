@@ -1,8 +1,9 @@
 local module = {}
+module.api = {}
 
 local mappings = {}
 
-module.getMappings = function()
+module.api.getMappings = function()
     return mappings
 end
 
@@ -22,4 +23,14 @@ module.saveMapping = function(config, rhs, name)
     )
 end
 
-return module
+local defaultConfig = {}
+
+local function setup(config)
+    local mergedConfig = type(config) == 'table'
+        and vim.tbl_extend("force", defaultConfig, config)
+        or defaultConfig
+
+    return module
+end
+
+return setup
