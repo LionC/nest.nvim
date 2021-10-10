@@ -147,4 +147,3 @@ module.applyKeymaps = function (config, presets)
 end
 
 return module
-
