@@ -1,5 +1,7 @@
 local module = {}
 
+local inspect = require 'nest-modules.inspect'
+
 --- Defaults being applied to `applyKeymaps`
 -- Can be modified to change defaults applied.
 module.defaults = {
@@ -24,16 +26,6 @@ module._getRhsExpr = function(index)
     return vim.api.nvim_replace_termcodes(keys, true, true, true)
 end
 
-local function functionToRhs(func, expr)
-    table.insert(rhsFns, func)
-
-    local insertedIndex = #rhsFns
-
-    return expr
-        and 'v:lua.package.loaded.nest._getRhsExpr(' .. insertedIndex .. ')'
-        or '<cmd>lua package.loaded.nest._callRhsFn(' .. insertedIndex .. ')<cr>'
-end
-
 local function copy(table)
     local ret = {}
 
@@ -44,14 +36,14 @@ local function copy(table)
     return ret
 end
 
-local function mergeTables(left, right)
-    local ret = copy(left)
+local function functionToRhs(func, expr)
+    table.insert(rhsFns, func)
 
-    for key, value in pairs(right) do
-        ret[key] = value
-    end
+    local insertedIndex = #rhsFns
 
-    return ret
+    return expr
+        and 'v:lua.package.loaded.nest._getRhsExpr(' .. insertedIndex .. ')'
+        or '<cmd>lua package.loaded.nest._callRhsFn(' .. insertedIndex .. ')<cr>'
 end
 
 local function mergeOptions(left, right)
@@ -74,7 +66,7 @@ local function mergeOptions(left, right)
     end
 
     if right.options ~= nil then
-        ret.options = mergeTables(ret.options, right.options)
+        ret.options = vim.tbl_extend("force", ret.options, right.options)
     end
 
     return ret
@@ -110,6 +102,8 @@ module.applyKeymaps = function (config, presets)
     local rhs = type(second) == 'function'
         and functionToRhs(second, mergedPresets.options.expr)
         or second
+
+    inspect.saveMapping(mergedPresets, second, config.name)
 
     for mode in string.gmatch(mergedPresets.mode, '.') do
         local sanitizedMode = mode == '_'
