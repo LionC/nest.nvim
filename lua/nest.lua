@@ -80,6 +80,13 @@ local function mergeOptions(left, right)
         ret.options = vim.tbl_extend("force", ret.options, right.options)
     end
 
+    if right.tags ~= nil then
+        ret.tags = ret.tags
+            -- this mutates right.tags - is that actually safe?
+            and vim.list_extend(right.tags, ret.tags)
+            or right.tags
+    end
+
     return ret
 end
 
