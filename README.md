@@ -30,7 +30,7 @@ call dein#add('LionC/nest.nvim')
 
 ## Quickstart Guide
 
-The `nest` Lua module exposes an `applyKeymaps` function that can be called any
+The `nest` Lua module exposes a `bind` (also available as `applyKeymaps` for compatibility reasons) function that can be called any
 number of times with a list of (nested) keymaps to be set.
 
 Keymaps will default to global, normal (`n`) mode, `noremap` and `silent`
@@ -39,7 +39,7 @@ unless overwritten.  Overrides are inherited by nested keymaps.
 ```lua
 local nest = require('nest')
 
-nest.applyKeymaps {
+nest.bind {
     -- Remove silent from ; : mapping, so that : shows up in command mode
     { ';', ':' , options = { silent = false } },
     { ':', ';' },
@@ -104,7 +104,7 @@ into different prefixes or options etc.
 
 ### Change defaults
 
-You can change the defaults used by `applyKeymaps`:
+You can change the defaults used by `bind`:
 
 ```lua
 local nest = require('nest')
@@ -130,7 +130,7 @@ Defaults start out as
 
 ## Reference
 
-### `nest.applyKeymaps`
+### `nest.bind` / `nest.applyKeymaps`
 
 Expects a `keymapConfig`, which is a table with at least two indexed properties
 in one of the following four shapes:
@@ -184,7 +184,7 @@ to all containing sub-`keymapConfig`s:
 Sets the Vim mode(s) for keymaps contained in the `keymapConfig`.
 
 Accepts a string with each char representing a mode. The modes follow the Vim
-prefixes (`n` for normal, `i` for insert...) **except the special character `_`**, which 
+prefixes (`n` for normal, `i` for insert...) **except the special character `_`**, which
 stands for the empty mode (`:map `). See `:help map-table` for a reference.
 
 #### `buffer`
