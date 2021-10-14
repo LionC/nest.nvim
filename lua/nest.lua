@@ -139,7 +139,7 @@ module.applyKeymaps = function (config, presets)
     end
 end
 
--- allow for `bind` to be used as an alias for applyKeymaps
+-- allow `bind` to be used as an alias for `applyKeymaps`
 module.bind = module.applyKeymaps
 
 return module
