@@ -103,7 +103,6 @@ module.applyKeymaps = function (config, presets)
 
     if type(second) == 'table' then
         module.applyKeymaps(second, mergedPresets)
-
         return
     end
 
@@ -111,32 +110,47 @@ module.applyKeymaps = function (config, presets)
         and functionToRhs(second, mergedPresets.options.expr)
         or second
 
-    for mode in string.gmatch(mergedPresets.mode, '.') do
-        local sanitizedMode = mode == '_'
+    -- Pass current keymap node to all handlers
+    for _, handler in pairs(module.handlers) do
+      handler(mergedPresets.buffer, mergedPresets.prefix, rhs, nil, nil, mergedPresets.mode, mergedPresets.options)
+    end
+end
+
+module.handlers = {}
+
+module.handlers['nest'] = function(buffer, lhs, rhs, _, _, mode, options)
+    for m in string.gmatch(mode, '.') do
+        local sanitizedMode = m == '_'
             and ''
             or mode
 
-        if mergedPresets.buffer then
-            local buffer = (mergedPresets.buffer == true)
+        if buffer then
+            local b = (buffer == true)
                 and 0
-                or mergedPresets.buffer
+                or buffer
 
             vim.api.nvim_buf_set_keymap(
-                buffer,
+                b,
                 sanitizedMode,
-                mergedPresets.prefix,
+                lhs,
                 rhs,
-                mergedPresets.options
+                options
             )
         else
             vim.api.nvim_set_keymap(
-                sanitizedMode,
-                mergedPresets.prefix,
+                m,
+                lhs,
                 rhs,
-                mergedPresets.options
+                options
             )
         end
     end
 end
+
+module.addMapHandler = function(name, handler)
+  module.handlers[name] = handler
+end
+
+module.enableWhichkey = require('enable-whichkey')
 
 return module
