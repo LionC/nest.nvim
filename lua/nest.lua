@@ -104,57 +104,56 @@ module.traverse = function (config, presets)
 
     mergedPresets.prefix = mergedPresets.prefix .. first
 
-    if type(second) == 'table' then
-        module.traverse(second, mergedPresets)
-        return
-    end
-
-    print(type(second) == 'function' and type(second) or second)
     local rhs = type(second) == 'function'
         and functionToRhs(second, mergedPresets.options.expr)
         or second
+    -- name is either the 3rd element in table or under the 'name' property
+    local name = #config >= 3 and config[3] or config.name
+    name = type(name) == 'string' and name or nil
 
-    -- Apply Keybindings
-    for mode in string.gmatch(mergedPresets.mode, '.') do
-        local sanitizedMode = mode == '_'
-            and ''
-            or mode
+    -- Apply keymaps if rhs is not a table
+    if type(rhs) ~= 'table' then
+      for mode in string.gmatch(mergedPresets.mode, '.') do
+          local sanitizedMode = mode == '_'
+              and ''
+              or mode
 
-        if mergedPresets.buffer then
-            local buffer = (mergedPresets.buffer == true)
-                and 0
-                or mergedPresets.buffer
+          if mergedPresets.buffer then
+              local buffer = (mergedPresets.buffer == true)
+                  and 0
+                  or mergedPresets.buffer
 
-            vim.api.nvim_buf_set_keymap(
-                buffer,
-                sanitizedMode,
-                mergedPresets.prefix,
-                rhs,
-                mergedPresets.options
-            )
-        else
-            vim.api.nvim_set_keymap(
-                sanitizedMode,
-                mergedPresets.prefix,
-                rhs,
-                mergedPresets.options
-            )
-        end
+              vim.api.nvim_buf_set_keymap(
+                  buffer,
+                  sanitizedMode,
+                  mergedPresets.prefix,
+                  rhs,
+                  mergedPresets.options
+              )
+          else
+              vim.api.nvim_set_keymap(
+                  sanitizedMode,
+                  mergedPresets.prefix,
+                  rhs,
+                  mergedPresets.options
+              )
+          end
+      end
+
+    else -- If rhs is a table then we traverse into it
+      module.traverse(second, mergedPresets)
     end
 
     -- Pass current keymap node to all integrations
     for _, integration in pairs(module.integrations) do
-      integration.handler(mergedPresets.buffer, mergedPresets.prefix, rhs, nil, nil, mergedPresets.mode, mergedPresets.options)
+      integration.handler(mergedPresets.buffer, mergedPresets.prefix, rhs, name, nil, mergedPresets.mode, mergedPresets.options)
     end
 end
 
 -- Allows adding extra keymap integrations
 module.enable = function(integration)
   if integration.name ~= nil then
-    print('Adding integration ' .. integration.name)
     module.integrations[integration.name] = integration
-  else
-    print('Nest error enabling integration')
   end
 end
 
@@ -170,7 +169,7 @@ module.applyKeymaps = function(config, presets)
   module.traverse(config, presets)
 
   for _, integration in pairs(module.integrations) do
-    if integration.on_init ~= nil then
+    if integration.on_complete ~= nil then
       integration.on_complete()
     end
   end

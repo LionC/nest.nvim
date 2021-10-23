@@ -1,10 +1,6 @@
 vim.api.nvim_command('set rtp+=.')
 vim.api.nvim_command('set rtp+=../which-key.nvim')
 
-local wk = require("which-key")
-wk.setup {}
-
-
 local nest = require('nest')
 nest.enable(require('nest.integrations.whichkey'));
 nest.applyKeymaps {
@@ -15,24 +11,24 @@ nest.applyKeymaps {
     -- Prefix  every nested keymap with <leader>
     { '<leader>', {
         -- Prefix every nested keymap with f (meaning actually <leader>f here)
-        { 'f', {
-            { 'f', '<cmd>Telescope find_files<cr>' },
+        { 'f', name = '+File', {
+            { 'f', '<cmd>Telescope find_files<cr>', 'Find Files' },
             -- This will actually map <leader>fl
-            { 'l', '<cmd>Telescope live_grep<cr>' },
+            { 'l', '<cmd>Telescope live_grep<cr>', 'Search Files', },
             -- Prefix every nested keymap with g (meaning actually <leader>fg here)
-            { 'g', {
-                { 'b', '<cmd>Telescope git_branches<cr>' },
+            { 'g', name = '+Git', {
+                { 'b', '<cmd>Telescope git_branches<cr>', 'Branches' },
                 -- This will actually map <leader>fgc
-                { 'c', '<cmd>Telescope git_commits<cr>' },
-                { 's', '<cmd>Telescope git_status<cr>' },
+                { 'c', '<cmd>Telescope git_commits<cr>', 'Commits' },
+                { 's', '<cmd>Telescope git_status<cr>', 'Status' },
             }},
         }},
 
         -- Lua functions can be right side values instead of key sequences
-        { 'l', {
-            { 'r', vim.lsp.buf.rename },
-            { 's', vim.lsp.buf.signature_help },
-            { 'h', vim.lsp.buf.hover },
+        { 'l', name = '+Lsp', {
+            { 'r', vim.lsp.buf.rename, 'Rename' },
+            { 's', vim.lsp.buf.signature_help, 'Signature' },
+            { 'h', vim.lsp.buf.hover, 'Hover' },
         }},
     }},
 
