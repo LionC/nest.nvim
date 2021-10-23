@@ -1,12 +1,12 @@
-set rtp+=.
-set rtp+=../plenary.nvim
-set rtp+=../nvim-treesitter
-set rtp+=../which-key.nvim
-runtime! plugin/plenary.vim
+vim.api.nvim_command('set rtp+=.')
+vim.api.nvim_command('set rtp+=../which-key.nvim')
 
-lua <<EOF
+local wk = require("which-key")
+wk.setup {}
+
+
 local nest = require('nest')
-
+nest.enable(require('nest.integrations.whichkey'));
 nest.applyKeymaps {
     -- Remove silent from ; : mapping, so that : shows up in command mode
     { ';', ':' , options = { silent = false } },
@@ -30,7 +30,6 @@ nest.applyKeymaps {
 
         -- Lua functions can be right side values instead of key sequences
         { 'l', {
-            { 'c', vim.lsp.buf.code_actions },
             { 'r', vim.lsp.buf.rename },
             { 's', vim.lsp.buf.signature_help },
             { 'h', vim.lsp.buf.hover },
@@ -53,11 +52,10 @@ nest.applyKeymaps {
             { 'h>', '<left>' },
             { 'l>', '<right>' },
             -- You can also set bindings for a specific buffer
-            { 'o>', '<Esc>o', buffer = 2 },
+            { 'o>', '<Esc>o', buffer = 1 },
         }},
     }},
 
     -- Keymaps can be defined for multiple modes at once
     { 'H', '^', mode = 'nv' },
 }
-EOF

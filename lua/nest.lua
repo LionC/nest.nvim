@@ -80,8 +80,11 @@ local function mergeOptions(left, right)
     return ret
 end
 
---- Applies the given `keymapConfig`, creating nvim keymaps
-module.applyKeymaps = function (config, presets)
+-- Stores all the different handlers for the nest API
+module.integrations = {}
+
+-- Traverses the nest config and passes each node to module.integrations
+module.traverse = function (config, presets)
     local mergedPresets = mergeOptions(
         presets or module.defaults,
         config
@@ -91,7 +94,7 @@ module.applyKeymaps = function (config, presets)
 
     if type(first) == 'table' then
         for _, it in ipairs(config) do
-            module.applyKeymaps(it, mergedPresets)
+            module.traverse(it, mergedPresets)
         end
 
         return
@@ -102,55 +105,75 @@ module.applyKeymaps = function (config, presets)
     mergedPresets.prefix = mergedPresets.prefix .. first
 
     if type(second) == 'table' then
-        module.applyKeymaps(second, mergedPresets)
+        module.traverse(second, mergedPresets)
         return
     end
 
+    print(type(second) == 'function' and type(second) or second)
     local rhs = type(second) == 'function'
         and functionToRhs(second, mergedPresets.options.expr)
         or second
 
-    -- Pass current keymap node to all handlers
-    for _, handler in pairs(module.handlers) do
-      handler(mergedPresets.buffer, mergedPresets.prefix, rhs, nil, nil, mergedPresets.mode, mergedPresets.options)
-    end
-end
-
-module.handlers = {}
-
-module.handlers['nest'] = function(buffer, lhs, rhs, _, _, mode, options)
-    for m in string.gmatch(mode, '.') do
-        local sanitizedMode = m == '_'
+    -- Apply Keybindings
+    for mode in string.gmatch(mergedPresets.mode, '.') do
+        local sanitizedMode = mode == '_'
             and ''
             or mode
 
-        if buffer then
-            local b = (buffer == true)
+        if mergedPresets.buffer then
+            local buffer = (mergedPresets.buffer == true)
                 and 0
-                or buffer
+                or mergedPresets.buffer
 
             vim.api.nvim_buf_set_keymap(
-                b,
+                buffer,
                 sanitizedMode,
-                lhs,
+                mergedPresets.prefix,
                 rhs,
-                options
+                mergedPresets.options
             )
         else
             vim.api.nvim_set_keymap(
-                m,
-                lhs,
+                sanitizedMode,
+                mergedPresets.prefix,
                 rhs,
-                options
+                mergedPresets.options
             )
         end
     end
+
+    -- Pass current keymap node to all integrations
+    for _, integration in pairs(module.integrations) do
+      integration.handler(mergedPresets.buffer, mergedPresets.prefix, rhs, nil, nil, mergedPresets.mode, mergedPresets.options)
+    end
 end
 
-module.addMapHandler = function(name, handler)
-  module.handlers[name] = handler
+-- Allows adding extra keymap integrations
+module.enable = function(integration)
+  if integration.name ~= nil then
+    print('Adding integration ' .. integration.name)
+    module.integrations[integration.name] = integration
+  else
+    print('Nest error enabling integration')
+  end
 end
 
-module.enableWhichkey = require('enable-whichkey')
+--- Applies the given `keymapConfig`, creating nvim keymaps
+module.applyKeymaps = function(config, presets)
+  -- Run on init for each integration
+  for _, integration in pairs(module.integrations) do
+    if integration.on_init ~= nil then
+      integration.on_init(config)
+    end
+  end
+
+  module.traverse(config, presets)
+
+  for _, integration in pairs(module.integrations) do
+    if integration.on_init ~= nil then
+      integration.on_complete()
+    end
+  end
+end
 
 return module
