@@ -83,7 +83,7 @@ end
 -- Stores all the different handlers for the nest API
 module.integrations = {}
 
--- @description Traverses the nest config and passes each node to module.integrations
+-- @description Traverses the nest config and runs all of the necessary integrations
 -- @param config -- Current node in the keymap object
 -- @param presets -- Keymap state (mode, prefix, buffer, etc)
 -- @param integrations -- Array/table of integration plugins
