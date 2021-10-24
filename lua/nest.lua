@@ -127,7 +127,6 @@ module.traverse = function (config, presets, integrations)
       integration.handler(mergedPresets.buffer, mergedPresets.prefix, rhs, name, description, mergedPresets.mode, mergedPresets.options)
     end
 
-    print('----' .. mergedPresets.prefix)
     -- Apply keymaps if rhs is not a table
     if type(rhs) ~= 'table' then
       for mode in string.gmatch(mergedPresets.mode, '.') do

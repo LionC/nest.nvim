@@ -30,12 +30,10 @@ end
 -- Categories are generated from the name of the parent keymap group
 local category_table = {}
 local add_category = function (lhs, name) 
-  print('Adding group ' .. lhs .. ' as ' .. name)
   category_table[lhs] = name
 end
 local get_category_for_command = function(lhs)
   local key = lhs:sub(1, -2)
-  print('searching for command ' .. key)
   return category_table[key]
 end
 
@@ -55,7 +53,6 @@ module.handler = function (buffer, lhs, rhs, name, description, mode, options)
 
   if type(rhs) == 'table' then
     -- If a name is provided, save the category
-    print('adding category for ' .. lhs)
     add_category(lhs, name)
     return
   end
@@ -65,10 +62,8 @@ module.handler = function (buffer, lhs, rhs, name, description, mode, options)
 
   -- Fallback to name if description not provided
   local _description = description == nil and name or description
-  print(lhs)
-  print(category)
-  print(id)
-  print(_description)
+
+  -- Ensure all required values have been found
   if category == nil or id == nil or _description == nil then
     return;
   end
