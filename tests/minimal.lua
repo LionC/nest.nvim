@@ -1,15 +1,59 @@
+--[[
+
+  PRECONFIGURATION
+
+ ]]
 vim.api.nvim_command('set rtp+=.')
 vim.api.nvim_command('set rtp+=../which-key.nvim')
+vim.api.nvim_command('set rtp+=../nvim-mapper')
+vim.api.nvim_command('set rtp+=../telescope.nvim')
+vim.api.nvim_command('set rtp+=../plenary.nvim')
 
+vim.api.nvim_command('runtime! plugin/plenary.vim')
+vim.api.nvim_command('runtime! plugin/telescope.vim')
+
+local telescope = require("telescope")
+-- Required to close with ESC in insert mode
+local actions = require("telescope.actions")
+
+telescope.setup({
+})
+
+-- Load mapper extension
+telescope.load_extension("mapper")
+
+require("nvim-mapper").setup({
+    -- do not assign the default keymap (<leader>MM)
+    no_map = false,
+    -- where should ripgrep look for your keybinds definitions.
+    -- Default config search path is ~/.config/nvim/lua
+    search_path = os.getenv("HOME") .. "/.config/nvim/lua",
+    -- what should be done with the selected keybind when pressing enter.
+    -- Available actions:
+    --   * "definition" - Go to keybind definition (default)
+    --   * "execute" - Execute the keybind command
+    action_on_enter = "definition",
+})
+
+
+--[[
+
+  EXAMPLE NEST CONFIGURATION
+
+ ]]
 local nest = require('nest')
 nest.enable(require('nest.integrations.whichkey'));
+nest.enable(require('nest.integrations.mapper'))
 nest.applyKeymaps {
     -- Remove silent from ; : mapping, so that : shows up in command mode
     { ';', ':' , options = { silent = false } },
     { ':', ';' },
 
+
     -- Prefix  every nested keymap with <leader>
     { '<leader>', {
+        { 'm', '<cmd>Telescope mapper<cr>', 'Mapper'},
+        { 'p', require'telescope.builtin'.planets, 'Planets' },
         -- Prefix every nested keymap with f (meaning actually <leader>f here)
         { 'f', name = '+File', {
             { 'f', '<cmd>Telescope find_files<cr>', 'Find Files' },

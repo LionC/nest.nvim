@@ -8,10 +8,11 @@ local keymap_table = {};
 -- @param lhs string
 -- @param rhs string|table
 -- @param name string|nil
--- @param description string|nil
+-- @param description string|nil 
+-- @param id string|nil A unique identifier (optional)
 -- @param mode string
 -- @param options table
-module.handler = function (buffer, lhs, rhs, name, description, mode, options)
+module.handler = function (buffer, lhs, rhs, name, description, id, mode, options)
   -- Only handle <leader> keys, which key needs a 'Name' field
   if (lhs:find('<leader>') == nil or name == nil) then
     return

@@ -83,8 +83,11 @@ end
 -- Stores all the different handlers for the nest API
 module.integrations = {}
 
--- Traverses the nest config and passes each node to module.integrations
-module.traverse = function (config, presets)
+-- @description Traverses the nest config and passes each node to module.integrations
+-- @param config -- Current node in the keymap object
+-- @param presets -- Keymap state (mode, prefix, buffer, etc)
+-- @param integrations -- Array/table of integration plugins
+module.traverse = function (config, presets, integrations)
     local mergedPresets = mergeOptions(
         presets or module.defaults,
         config
@@ -92,11 +95,11 @@ module.traverse = function (config, presets)
 
     local first = config[1]
 
+    -- Top level of config, just traverse into each keymap/keymap group
     if type(first) == 'table' then
         for _, it in ipairs(config) do
-            module.traverse(it, mergedPresets)
+            module.traverse(it, mergedPresets, integrations)
         end
-
         return
     end
 
@@ -111,6 +114,20 @@ module.traverse = function (config, presets)
     local name = #config >= 3 and config[3] or config.name
     name = type(name) == 'string' and name or nil
 
+    local description = #config >= 4 and config[4] or config.description
+    description = type(description) == 'string' and description or nil
+
+    if (type(rhs) == 'nil') then
+      print('nest.nvim: Action for keymap ' .. mergedPresets.prefix .. ' is nil.  Are you trying to call a function that doesn\'t exist?')
+      return
+    end
+
+    -- Pass current keymap node to all integrations
+    for _, integration in pairs(integrations) do
+      integration.handler(mergedPresets.buffer, mergedPresets.prefix, rhs, name, description, mergedPresets.mode, mergedPresets.options)
+    end
+
+    print('----' .. mergedPresets.prefix)
     -- Apply keymaps if rhs is not a table
     if type(rhs) ~= 'table' then
       for mode in string.gmatch(mergedPresets.mode, '.') do
@@ -141,12 +158,7 @@ module.traverse = function (config, presets)
       end
 
     else -- If rhs is a table then we traverse into it
-      module.traverse(second, mergedPresets)
-    end
-
-    -- Pass current keymap node to all integrations
-    for _, integration in pairs(module.integrations) do
-      integration.handler(mergedPresets.buffer, mergedPresets.prefix, rhs, name, nil, mergedPresets.mode, mergedPresets.options)
+      module.traverse(second, mergedPresets, integrations)
     end
 end
 
@@ -166,7 +178,7 @@ module.applyKeymaps = function(config, presets)
     end
   end
 
-  module.traverse(config, presets)
+  module.traverse(config, presets, module.integrations)
 
   for _, integration in pairs(module.integrations) do
     if integration.on_complete ~= nil then
