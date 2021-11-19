@@ -259,7 +259,7 @@ Add `nest.enable(require('nest.integrations.whichkey'))` before you run `applyKe
 #### Example
 ```lua
 local nest = require('nest')
-nest.enable(require('nest.integrations.mapper'))
+nest.enable(require('nest.integrations.whichkey'))
 nest.applyKeymaps {
     { '<leader>', {
         { 'f', name = '+File',  { -- Can be used as property
