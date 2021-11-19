@@ -1,9 +1,15 @@
+--- @type NestIntegration
 local module = {}
 module.name = 'mapper';
 
 local unique_id_table = {};
 
-local determine_uid = function (rhs, name)
+--- Tries to create a unique keymap id given a lhs, rhs and name
+--- lhs/rhs used as key
+--- @param lhs string
+--- @param rhs string
+--- @return string|nil
+local determine_uid = function (lhs, name)
   -- Format name to snake case no punctuation
   local formatted_name = name:lower()
   formatted_name = formatted_name:gsub("%p", '')
@@ -11,68 +17,77 @@ local determine_uid = function (rhs, name)
 
   local n = formatted_name
   local i = 0
+  if unique_id_table[n] == lhs then
+    return nil
+  end
   -- Find a free spot in the unique_id_table
   while unique_id_table[n] ~= nil and i < 50 do
     i = i + 1
     n = formatted_name .. "_" .. i
     -- If this command has already been added, return early
-    if unique_id_table[n] == rhs then
-      return
-    end
   end
 
   -- Add to table
-  unique_id_table[n] = rhs
+  unique_id_table[n] = lhs
 
   return n
 end
 
 -- Categories are generated from the name of the parent keymap group
 local category_table = {}
-local add_category = function (lhs, name) 
+--- Adds categories to a table to be searched using get_category_for_command
+--- @param lhs string Left hand side string to trigger a keymap
+--- @param name string Name of keymap group
+local add_category = function (lhs, name)
   category_table[lhs] = name
 end
+--- Tries to determin the category of a keymap by finding the name of the parent group
+--- @param lhs string LHS string to trigger a keymap
+--- @return string|nil
 local get_category_for_command = function(lhs)
   local key = lhs:sub(1, -2)
   return category_table[key]
 end
 
-Mapper = require("nvim-mapper")
--- @description Handles the each node in the nest tree
--- @param buffer number|nil
--- @param lhs string
--- @param rhs string|table
--- @param name string|nil
--- @param description string|nil
--- @param mode string
--- @param options table
-module.handler = function (buffer, lhs, rhs, name, description, mode, options)
-  if name == nil then
+local Mapper = require("nvim-mapper")
+
+--- @class NestMapperNode : NestIntegrationNode
+--- @field category string|nil
+--- @field uid string|nil
+
+--- @description Handles the each node in the nest tree
+--- @param node NestMapperNode
+--- @param node_settings NestSettings
+module.handler = function (node, node_settings)
+  if node.name == nil then
     return
   end
 
-  if type(rhs) == 'table' then
+  if type(node.rhs) == 'table' then
     -- If a name is provided, save the category
-    add_category(lhs, name)
+    local category = node.category or node.name
+    add_category(node.lhs, category)
     return
   end
 
-  local category = get_category_for_command(lhs)
-  local id = determine_uid(lhs, name)
+  local category = node.category or get_category_for_command(node.lhs) or 'unknown'
+  local id = node.uid or determine_uid(node.lhs, node.name)
 
   -- Fallback to name if description not provided
-  local _description = description == nil and name or description
+  local description = node.description or node.name
 
   -- Ensure all required values have been found
-  if category == nil or id == nil or _description == nil then
+  if category == nil or id == nil or description == nil then
     return;
   end
 
-  if buffer ~= nil then
-    Mapper.map_buf(buffer, mode, lhs, rhs, options, category, id, _description)
+  if node_settings.buffer then
+    local bufnr = type(node_settings.buffer) == 'number' and node_settings.buffer or vim.api.nvim_get_current_buf()
+    Mapper.map_buf(bufnr, node_settings.mode, node.lhs, node.rhs, node_settings.options, category, id, description)
   else
-    Mapper.map(mode, lhs, rhs, options, name, id, _description)
+    Mapper.map(node_settings.mode, node.lhs, node.rhs, node_settings.options, category, id, description)
   end
 end
 
 return module;
+

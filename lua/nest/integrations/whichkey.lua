@@ -1,28 +1,24 @@
+--- @type NestIntegration
 local module = {}
 module.name = 'whichkey';
 
 local keymap_table = {};
 
--- @description Handles the each node in the nest tree
--- @param buffer number|nil
--- @param lhs string
--- @param rhs string|table
--- @param name string|nil
--- @param description string|nil 
--- @param mode string
--- @param options table
-module.handler = function (buffer, lhs, rhs, name, description, mode, options)
+--- Handles each node of the nest keymap config (except the top level)
+--- @param node NestIntegrationNode
+--- @param node_settings NestSettings
+module.handler = function (node, node_settings)
   -- Only handle <leader> keys, which key needs a 'Name' field
-  if (lhs:find('<leader>') == nil or name == nil) then
+  if (node.lhs:find('<leader>') == nil or node.name == nil) then
     return
   end
 
   -- If this is a keymap group
-  if type(rhs) == 'table' then
-    keymap_table[lhs] = { name = name }
+  if type(node.rhs) == 'table' then
+    keymap_table[node.lhs] = { name = node.name }
   -- If this is an actual keymap
-  elseif (type(rhs) == 'string') then
-    keymap_table[lhs] = { name }
+  elseif (type(node.rhs) == 'string') then
+    keymap_table[node.lhs] = { node.name }
   end
 end
 

@@ -32,7 +32,7 @@ require("nvim-mapper").setup({
     -- Available actions:
     --   * "definition" - Go to keybind definition (default)
     --   * "execute" - Execute the keybind command
-    action_on_enter = "definition",
+    action_on_enter = "execute",
 })
 
 
@@ -44,6 +44,19 @@ require("nvim-mapper").setup({
 local nest = require('nest')
 nest.enable(require('nest.integrations.whichkey'));
 nest.enable(require('nest.integrations.mapper'))
+nest.enable(require('nest.integrations.example'))
+
+--- For testing keymaps bound to buffer
+local apply_buffer_keymaps = function ()
+  nest.applyKeymaps({
+    { '<C-t>', ':echo "Keymap works"<CR>', buffer = true, mode = 'nv'},
+    { '<leader>', buffer = true, {
+        { 't', ':echo "Keymap works"<CR>', 'Current buffer keymap', 'Buffer only'},
+      }
+    }
+  })
+end
+
 nest.applyKeymaps {
     -- Remove silent from ; : mapping, so that : shows up in command mode
     { ';', ':' , options = { silent = false } },
@@ -55,10 +68,10 @@ nest.applyKeymaps {
         { 'm', '<cmd>Telescope mapper<cr>', 'Mapper'},
         { 'p', require'telescope.builtin'.planets, 'Planets' },
         -- Prefix every nested keymap with f (meaning actually <leader>f here)
-        { 'f', name = '+File', {
-            { 'f', '<cmd>Telescope find_files<cr>', 'Find Files' },
+        { 'f', name = '+File', description = 'File Related',  {
+            { 'f', '<cmd>Telescope find_files<cr>', 'Find Files', uid = 'find_files' },
             -- This will actually map <leader>fl
-            { 'l', '<cmd>Telescope live_grep<cr>', 'Search Files', },
+            { 'l', '<cmd>Telescope live_grep<cr>', 'Search Files', uid = 'custom_uid' },
             -- Prefix every nested keymap with g (meaning actually <leader>fg here)
             { 'g', name = '+Git', {
                 { 'b', '<cmd>Telescope git_branches<cr>', 'Branches' },
@@ -74,6 +87,8 @@ nest.applyKeymaps {
             { 's', vim.lsp.buf.signature_help, 'Signature' },
             { 'h', vim.lsp.buf.hover, 'Hover' },
         }},
+
+        { 'a', apply_buffer_keymaps, 'Apply buffer keymaps'},
     }},
 
     -- Use insert mode for all nested keymaps
@@ -99,3 +114,4 @@ nest.applyKeymaps {
     -- Keymaps can be defined for multiple modes at once
     { 'H', '^', mode = 'nv' },
 }
+
