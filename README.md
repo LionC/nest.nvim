@@ -227,14 +227,14 @@ Add `nest.enable(require('nest.integrations.mapper'))` before you run `applyKeym
 
 #### Additional config
 
-- `[3]|name` `string` A short name for the keymap or keymap group
-- `[4]|description` `string` (optional) A longer description for the keymap or keymap group
+- `[3]|name string` A short name for the keymap or keymap group
+- `[4]|description string` (optional) A longer description for the keymap or keymap group
   - If not provided the `name` field will be used
-- `uid` `string` (optional) A unique identifier for the nvim mapper config
+- `uid string` (optional) A unique identifier for the nvim mapper config
   - If not provided one will be generated from `name`
-- `category` `string` (optional) A general category for the keymap group
+- `category string` (optional) A general category for the keymap group
   - If not provided it will fallback to the `name` of the parent keymap group
-  - If no parent group the category will be `unknown`
+  - If no parent group the category will be `'unknown'`
 
 #### Example
 ```lua
@@ -254,7 +254,7 @@ Add `nest.enable(require('nest.integrations.whichkey'))` before you run `applyKe
 
 #### Additional config
 
-- `[3]|name` `string` A short name for the keymap or keymap group
+- `[3]|name string` A short name for the keymap or keymap group
 
 #### Example
 ```lua
@@ -262,7 +262,7 @@ local nest = require('nest')
 nest.enable(require('nest.integrations.whichkey'))
 nest.applyKeymaps {
     { '<leader>', {
-        { 'f', name = '+File',  { -- Can be used as property
+        { 'f', name = '+File',  { -- Can be used as field
             { 'f', '<cmd>Telescope find_files<cr>', 'Find Files'}, -- Or as the 3rd element in table
         }}
     }},
