@@ -12,6 +12,8 @@ vim.api.nvim_command('set rtp+=../plenary.nvim')
 vim.api.nvim_command('runtime! plugin/plenary.vim')
 vim.api.nvim_command('runtime! plugin/telescope.vim')
 
+vim.g.mapleader = " "
+
 local telescope = require("telescope")
 -- Required to close with ESC in insert mode
 local actions = require("telescope.actions")
@@ -58,11 +60,6 @@ local apply_buffer_keymaps = function ()
 end
 
 nest.applyKeymaps {
-    -- Remove silent from ; : mapping, so that : shows up in command mode
-    { ';', ':' , options = { silent = false } },
-    { ':', ';' },
-
-
     -- Prefix  every nested keymap with <leader>
     { '<leader>', {
         { 'm', '<cmd>Telescope mapper<cr>', 'Mapper'},
@@ -80,6 +77,13 @@ nest.applyKeymaps {
                 { 's', '<cmd>Telescope git_status<cr>', 'Status' },
             }},
         }},
+        { 'b', name = '+Buffers', description = 'Keybindings relating to buffers',  {
+            { 'b', '<cmd>Telescope buffers<cr>', 'Go to buffer', uid = 'go_to_buffer' },
+            { 'n', '<cmd>bnext<cr>', 'Next buffer', uid = 'next_buffer' },
+            { 'p', '<cmd>bprevious<cr>', 'Prev buffer', uid = 'prev_buffer' },
+            { 'd', '<cmd>bd<cr>', 'Delete buffer', uid = 'delete_buffer' },
+        }},
+
 
         -- Lua functions can be right side values instead of key sequences
         { 'l', name = '+Lsp', {

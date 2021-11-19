@@ -40,14 +40,14 @@ local module = {}
 --- @field name string
 --- @field description string
 
---- Defaults being applied to `applyKeymaps`
--- Can be modified to change defaults applied.
---- @type NestSettings
 
 --[[
 --     UTILS
 --]]
 
+--- Defaults being applied to `applyKeymaps`
+-- Can be modified to change defaults applied.
+--- @type NestSettings
 module.defaults = {
     mode = 'n',
     prefix = '',
