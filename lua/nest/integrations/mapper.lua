@@ -9,11 +9,14 @@ local unique_id_table = {};
 --- @param lhs string
 --- @param rhs string
 --- @return string|nil
-local determine_uid = function (lhs, name)
+local determine_uid = function (lhs, name, mode)
   -- Format name to snake case no punctuation
   local formatted_name = name:lower()
   formatted_name = formatted_name:gsub("%p", '')
-  formatted_name = formatted_name:gsub("%s", "_")
+  formatted_name = formatted_name:gsub("%s", '_')
+  if mode ~= '' then
+    formatted_name = formatted_name .. '_' .. mode
+  end
 
   local n = formatted_name
   local i = 0
@@ -71,21 +74,30 @@ module.handler = function (node, node_settings)
   end
 
   local category = node.category or get_category_for_command(node.lhs) or 'unknown'
-  local id = node.uid or determine_uid(node.lhs, node.name)
 
   -- Fallback to name if description not provided
   local description = node.description or node.name
 
   -- Ensure all required values have been found
-  if category == nil or id == nil or description == nil then
+  if category == nil or description == nil then
     return;
   end
 
-  if node_settings.buffer then
-    local bufnr = type(node_settings.buffer) == 'number' and node_settings.buffer or vim.api.nvim_get_current_buf()
-    Mapper.map_buf(bufnr, node_settings.mode, node.lhs, node.rhs, node_settings.options, category, id, description)
-  else
-    Mapper.map(node_settings.mode, node.lhs, node.rhs, node_settings.options, category, id, description)
+  for mode in string.gmatch(node_settings.mode, '.') do
+    local sanitizedMode = mode == '_'
+      and ''
+      or mode
+    
+    local id = node.uid or determine_uid(node.lhs, node.name, sanitizedMode)
+
+    if id ~= nil then
+      if node_settings.buffer then
+        local bufnr = type(node_settings.buffer) == 'number' and node_settings.buffer or vim.api.nvim_get_current_buf()
+        Mapper.map_buf(bufnr, sanitizedMode, node.lhs, node.rhs, node_settings.options, category, id, description)
+      else
+        Mapper.map(sanitizedMode, node.lhs, node.rhs, node_settings.options, category, id, description)
+      end
+    end
   end
 end
 
