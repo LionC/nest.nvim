@@ -219,7 +219,11 @@ Sets a `string` prefix to be applied to all keymap inputs.
 
 ## Plugin Integrations
 
-Nest.nvim can integrate with other plugins.  See `lua/nest/integrations/example.lua` to build your own.
+Nest.nvim can integrate with other plugins.  See [lua/nest/integrations/example.lua](lua/nest/integrations/example.lua) for an example integration.  You can create your own custom integrations and pass them to nest.nvim using the `enable` function.
+
+```lua
+require('nest').enable(my_integration_object)
+```
 
 ### nvim-mapper
 
@@ -242,8 +246,16 @@ local nest = require('nest')
 nest.enable(require('nest.integrations.mapper'))
 nest.applyKeymaps {
     { '<leader>', {
-        { 'f', '<cmd>Telescope find_files<cr>', 'Find Files'}, -- Minimal
+      { 'f', name = 'find', {
+        -- Minimal configuration
+        -- 'category' will be automatically set to parent group name ( 'find' )
+        -- 'uid' will be automatically generated from 'name' ( 'find_files' in this case )
+        --    - If there are multiple 'find_files' uids, a number will be appended ( 'find_files_1' )
+        { 'f', '<cmd>Telescope find_files<cr>', 'Find Files'},
+
+        -- Maximal configuration
         { 'g', '<cmd>Telescope live_grep<cr>', 'Live Grep', 'Searches for a string within project files', uid = 'search_live_grep', category = 'search'}, -- Maximal
+      }}
     }},
 }
 ```
