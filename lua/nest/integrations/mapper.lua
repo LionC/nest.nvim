@@ -20,6 +20,7 @@ local determine_uid = function (lhs, name, mode)
 
   local n = formatted_name
   local i = 0
+    -- If this command has already been added, return early
   if unique_id_table[n] == lhs then
     return nil
   end
@@ -27,7 +28,6 @@ local determine_uid = function (lhs, name, mode)
   while unique_id_table[n] ~= nil and i < 50 do
     i = i + 1
     n = formatted_name .. "_" .. i
-    -- If this command has already been added, return early
   end
 
   -- Add to table
