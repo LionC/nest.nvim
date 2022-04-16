@@ -86,7 +86,7 @@ nest.applyKeymaps {
 
 
         -- Lua functions can be right side values instead of key sequences
-        { 'l', name = '+Lsp', {
+        { 'l', mode="nv", name = '+Lsp', {
             { 'r', vim.lsp.buf.rename, 'Rename' },
             { 's', vim.lsp.buf.signature_help, 'Signature' },
             { 'h', vim.lsp.buf.hover, 'Hover' },

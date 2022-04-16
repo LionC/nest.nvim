@@ -2,7 +2,8 @@
 local module = {}
 module.name = 'whichkey';
 
-local keymap_table = {};
+local keymaps = {
+};
 
 --- Handles each node of the nest keymap config (except the top level)
 --- @param node NestIntegrationNode
@@ -13,17 +14,25 @@ module.handler = function (node, node_settings)
     return
   end
 
-  -- If this is a keymap group
-  if type(node.rhs) == 'table' then
-    keymap_table[node.lhs] = { name = node.name }
-  -- If this is an actual keymap
-  elseif (type(node.rhs) == 'string') then
-    keymap_table[node.lhs] = { node.name }
+  for _, v in ipairs(vim.split(node_settings.mode or "n", "")) do
+    if keymaps[v] == nil then
+      keymaps[v] = {}
+    end
+    -- If this is a keymap group
+    if type(node.rhs) == 'table' then
+      keymaps[v][node.lhs] = { name = node.name }
+    -- If this is an actual keymap
+    elseif (type(node.rhs) == 'string') then
+      keymaps[v][node.lhs] = { node.name }
+    end
   end
+
 end
 
 module.on_complete = function ()
-  require("which-key").register(keymap_table)
+  for k, v in pairs(keymaps) do
+    require("which-key").register(v, { mode = k })
+  end
 end
 
 return module;
