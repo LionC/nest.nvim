@@ -217,6 +217,70 @@ Has the same named fields as `keymapConfig`, with an additional field:
 
 Sets a `string` prefix to be applied to all keymap inputs.
 
+## Plugin Integrations
+
+Nest.nvim can integrate with other plugins.  See [lua/nest/integrations/example.lua](lua/nest/integrations/example.lua) for an example integration.  You can create your own custom integrations and pass them to nest.nvim using the `enable` function.
+
+```lua
+require('nest').enable(my_integration_object)
+```
+
+### nvim-mapper
+
+Add `nest.enable(require('nest.integrations.mapper'))` before you run `applyKeymaps`.
+
+#### Additional config
+
+- `[3]|name string` A short name for the keymap or keymap group
+- `[4]|description string` (optional) A longer description for the keymap or keymap group
+  - If not provided the `name` field will be used
+- `uid string` (optional) A unique identifier for the nvim mapper config
+  - If not provided one will be generated from `name`
+- `category string` (optional) A general category for the keymap group
+  - If not provided it will fallback to the `name` of the parent keymap group
+  - If no parent group the category will be `'unknown'`
+
+#### Example
+```lua
+local nest = require('nest')
+nest.enable(require('nest.integrations.mapper'))
+nest.applyKeymaps {
+    { '<leader>', {
+      { 'f', name = 'find', {
+        -- Minimal configuration
+        -- 'category' will be automatically set to parent group name ( 'find' )
+        -- 'uid' will be automatically generated from 'name' ( 'find_files' in this case )
+        --    - If there are multiple 'find_files' uids, a number will be appended ( 'find_files_1' )
+        { 'f', '<cmd>Telescope find_files<cr>', 'Find Files'},
+
+        -- Maximal configuration
+        { 'g', '<cmd>Telescope live_grep<cr>', 'Live Grep', 'Searches for a string within project files', uid = 'search_live_grep', category = 'search'}, -- Maximal
+      }}
+    }},
+}
+```
+
+### which-key.nvim
+
+Add `nest.enable(require('nest.integrations.whichkey'))` before you run `applyKeymaps`.
+
+#### Additional config
+
+- `[3]|name string` A short name for the keymap or keymap group
+
+#### Example
+```lua
+local nest = require('nest')
+nest.enable(require('nest.integrations.whichkey'))
+nest.applyKeymaps {
+    { '<leader>', {
+        { 'f', name = '+File',  { -- Can be used as field
+            { 'f', '<cmd>Telescope find_files<cr>', 'Find Files'}, -- Or as the 3rd element in table
+        }}
+    }},
+}
+```
+
 ## Planned Features
 
 See issues and milestones
