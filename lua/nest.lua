@@ -34,47 +34,15 @@ local function functionToRhs(func, expr)
         or '<cmd>lua package.loaded.nest._callRhsFn(' .. insertedIndex .. ')<cr>'
 end
 
-local function copy(table)
-    local ret = {}
-
-    for key, value in pairs(table) do
-        ret[key] = value
-    end
-
-    return ret
-end
-
-local function mergeTables(left, right)
-    local ret = copy(left)
-
-    for key, value in pairs(right) do
-        ret[key] = value
-    end
-
-    return ret
-end
-
 local function mergeOptions(left, right)
-    local ret = copy(left)
-
     if right == nil then
-        return ret
+        return left or {}
     end
 
-    if right.mode ~= nil then
-        ret.mode = right.mode
-    end
-
-    if right.buffer ~= nil then
-        ret.buffer = right.buffer
-    end
+    local ret = vim.tbl_deep_extend("force", left, right) or {}
 
     if right.prefix ~= nil then
-        ret.prefix = ret.prefix .. right.prefix
-    end
-
-    if right.options ~= nil then
-        ret.options = mergeTables(ret.options, right.options)
+        ret.prefix = left.prefix .. right.prefix
     end
 
     return ret
