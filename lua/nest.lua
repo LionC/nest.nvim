@@ -7,32 +7,10 @@ module.defaults = {
     prefix = '',
     buffer = false,
     options = {
-        noremap = true,
+        remap = false,
         silent = true,
     },
 }
-
-local rhsFns = {}
-
-module._callRhsFn = function(index)
-    rhsFns[index]()
-end
-
-module._getRhsExpr = function(index)
-    local keys = rhsFns[index]()
-
-    return vim.api.nvim_replace_termcodes(keys, true, true, true)
-end
-
-local function functionToRhs(func, expr)
-    table.insert(rhsFns, func)
-
-    local insertedIndex = #rhsFns
-
-    return expr
-        and 'v:lua.package.loaded.nest._getRhsExpr(' .. insertedIndex .. ')'
-        or '<cmd>lua package.loaded.nest._callRhsFn(' .. insertedIndex .. ')<cr>'
-end
 
 local function mergeOptions(left, right)
     if right == nil then
@@ -75,36 +53,26 @@ module.applyKeymaps = function (config, presets)
         return
     end
 
-    local rhs = type(second) == 'function'
-        and functionToRhs(second, mergedPresets.options.expr)
-        or second
-
+    local sanitizedMode = {}
     for mode in string.gmatch(mergedPresets.mode, '.') do
-        local sanitizedMode = mode == '_'
+        local sMode = mode == '_'
             and ''
             or mode
-
-        if mergedPresets.buffer then
-            local buffer = (mergedPresets.buffer == true)
-                and 0
-                or mergedPresets.buffer
-
-            vim.api.nvim_buf_set_keymap(
-                buffer,
-                sanitizedMode,
-                mergedPresets.prefix,
-                rhs,
-                mergedPresets.options
-            )
-        else
-            vim.api.nvim_set_keymap(
-                sanitizedMode,
-                mergedPresets.prefix,
-                rhs,
-                mergedPresets.options
-            )
-        end
+        table.insert(sanitizedMode, sMode)
     end
+
+    if mergedPresets.buffer then
+        mergedPresets.options.buffer = (mergedPresets.buffer == true)
+            and 0
+            or mergedPresets.buffer
+    end
+
+    vim.keymap.set(
+        sanitizedMode,
+        mergedPresets.prefix,
+        second,
+        mergedPresets.options
+    )
 end
 
 return module
