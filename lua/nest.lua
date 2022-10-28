@@ -60,11 +60,7 @@ module.applyKeymaps = function (config, presets)
         table.insert(sanitizedMode, sMode)
     end
 
-    if mergedPresets.buffer then
-        mergedPresets.options.buffer = (mergedPresets.buffer == true)
-            and 0
-            or mergedPresets.buffer
-    end
+    mergedPresets.options.buffer = mergedPresets.buffer
 
     vim.keymap.set(
         sanitizedMode,
