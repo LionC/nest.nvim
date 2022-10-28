@@ -7,74 +7,19 @@ module.defaults = {
     prefix = '',
     buffer = false,
     options = {
-        noremap = true,
         silent = true,
     },
 }
 
-local rhsFns = {}
-
-module._callRhsFn = function(index)
-    rhsFns[index]()
-end
-
-module._getRhsExpr = function(index)
-    local keys = rhsFns[index]()
-
-    return vim.api.nvim_replace_termcodes(keys, true, true, true)
-end
-
-local function functionToRhs(func, expr)
-    table.insert(rhsFns, func)
-
-    local insertedIndex = #rhsFns
-
-    return expr
-        and 'v:lua.package.loaded.nest._getRhsExpr(' .. insertedIndex .. ')'
-        or '<cmd>lua package.loaded.nest._callRhsFn(' .. insertedIndex .. ')<cr>'
-end
-
-local function copy(table)
-    local ret = {}
-
-    for key, value in pairs(table) do
-        ret[key] = value
-    end
-
-    return ret
-end
-
-local function mergeTables(left, right)
-    local ret = copy(left)
-
-    for key, value in pairs(right) do
-        ret[key] = value
-    end
-
-    return ret
-end
-
 local function mergeOptions(left, right)
-    local ret = copy(left)
-
     if right == nil then
-        return ret
+        return left or {}
     end
 
-    if right.mode ~= nil then
-        ret.mode = right.mode
-    end
-
-    if right.buffer ~= nil then
-        ret.buffer = right.buffer
-    end
+    local ret = vim.tbl_deep_extend("force", left, right) or {}
 
     if right.prefix ~= nil then
-        ret.prefix = ret.prefix .. right.prefix
-    end
-
-    if right.options ~= nil then
-        ret.options = mergeTables(ret.options, right.options)
+        ret.prefix = left.prefix .. right.prefix
     end
 
     return ret
@@ -107,36 +52,22 @@ module.applyKeymaps = function (config, presets)
         return
     end
 
-    local rhs = type(second) == 'function'
-        and functionToRhs(second, mergedPresets.options.expr)
-        or second
-
+    local sanitizedMode = {}
     for mode in string.gmatch(mergedPresets.mode, '.') do
-        local sanitizedMode = mode == '_'
+        local sMode = mode == '_'
             and ''
             or mode
-
-        if mergedPresets.buffer then
-            local buffer = (mergedPresets.buffer == true)
-                and 0
-                or mergedPresets.buffer
-
-            vim.api.nvim_buf_set_keymap(
-                buffer,
-                sanitizedMode,
-                mergedPresets.prefix,
-                rhs,
-                mergedPresets.options
-            )
-        else
-            vim.api.nvim_set_keymap(
-                sanitizedMode,
-                mergedPresets.prefix,
-                rhs,
-                mergedPresets.options
-            )
-        end
+        table.insert(sanitizedMode, sMode)
     end
+
+    mergedPresets.options.buffer = mergedPresets.buffer
+
+    vim.keymap.set(
+        sanitizedMode,
+        mergedPresets.prefix,
+        second,
+        mergedPresets.options
+    )
 end
 
 return module

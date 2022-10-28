@@ -5,7 +5,6 @@ and trees
 
 - Modular, maintainable pure Lua way to define keymaps
 - Written in a single file of ~100 lines
-- Supports mapping keys to Lua functions with `expr` support
 - Allows grouping keymaps the way you think about them concisely
 
 ## Installation
@@ -110,7 +109,7 @@ You can change the defaults used by `applyKeymaps`:
 local nest = require('nest')
 
 nest.defaults.options = {
-    noremap = false,
+    remap = true,
 }
 ```
 
@@ -122,7 +121,6 @@ Defaults start out as
     prefix = '',
     buffer = false,
     options = {
-        noremap = true,
         silent = true,
     },
 }
@@ -184,7 +182,7 @@ to all containing sub-`keymapConfig`s:
 Sets the Vim mode(s) for keymaps contained in the `keymapConfig`.
 
 Accepts a string with each char representing a mode. The modes follow the Vim
-prefixes (`n` for normal, `i` for insert...) **except the special character `_`**, which 
+prefixes (`n` for normal, `i` for insert...) **except the special character `_`**, which
 stands for the empty mode (`:map `). See `:help map-table` for a reference.
 
 #### `buffer`
@@ -204,8 +202,8 @@ the `keymapConfig`.
 that you only have to pass the `options` you want to change instead of replacing
 the whole object.
 
-Accepts all values `nvim_set_keymap`s `options` parameter accepts. See `:help
-nvim_set_keymap`.
+Accepts all values `vim.keymap.set`s `options` parameter accepts. See `:help
+vim.keymap.set`.
 
 ### `nest.defaults`
 
