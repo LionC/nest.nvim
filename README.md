@@ -121,7 +121,6 @@ Defaults start out as
     prefix = '',
     buffer = false,
     options = {
-        remap = false,
         silent = true,
     },
 }

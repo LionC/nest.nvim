@@ -7,7 +7,6 @@ module.defaults = {
     prefix = '',
     buffer = false,
     options = {
-        remap = false,
         silent = true,
     },
 }
